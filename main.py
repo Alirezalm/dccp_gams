@@ -22,8 +22,9 @@ def main_page():
         dslr.create_variables()
         dslr.create_objective()
         dslr.create_constraints(5)
-        dslr.solve()
-        return jsonify({'status': 55})
+        solver = problem_data['selected_solver']
+        results = dslr.solve(solver)
+        return jsonify(results)
 
     else:
         return jsonify({'status': 1})

@@ -1,3 +1,4 @@
+from pyomo.opt.results import results_
 from pyomo.solvers.plugins.solvers.GAMS import GAMSShell
 from scipy import randn
 from sklearn import preprocessing
@@ -41,15 +42,24 @@ class SparseLogReg(RandDCCP):
             self.model.limits.add(-bound * self.model.delta[i] <= self.model.x[i])
         self.model.limits.add(sum([self.model.delta[i] for i in range(self.nVars)]) <= self.nZeros)
 
-    def solve(self):
+    def solve(self, solver_name):
 
         solver = SolverFactory('gams')
-        # io_options=dict(add_options=['reslim=100;'])
-        results = solver.solve(self.model, solver = 'bonmin', tee = False, keepfiles = False, add_options=['GAMS_MODEL.reslim = 0.1;'])
+        options = ['GAMS_MODEL.reslim = 600;']
+        results = solver.solve(self.model, solver = solver_name, tee = False, keepfiles = False, add_options = options)
         print(results)
-        print([value(self.model.delta[i]) for i in range(self.nVars)])
-        print([value(self.model.x[i]) for i in range(self.nVars)])
-        return results
+        lower_bound = results.problem.lower_bound
+        upper_bound = results.problem.upper_bound
+        elapsed_time = results.solver.user_time
+        status = results.solver.termination_condition
+        gap = (upper_bound - lower_bound) / abs(upper_bound + 1e-8)
+        out = {
+            'solver': solver_name,
+            'gap': gap,
+            'time': elapsed_time,
+            'status': status
+        }
+        return out
 
     def _objective(self, dataset = None, response = None):
         m = dataset.shape[0]

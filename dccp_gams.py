@@ -35,5 +35,5 @@ class RandDCCP(ABC):
         pass
 
     @abstractmethod
-    def solve(self):
+    def solve(self, solver):
         pass
