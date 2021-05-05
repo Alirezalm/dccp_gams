@@ -1,3 +1,4 @@
+from pyomo.solvers.plugins.solvers.GAMS import GAMSShell
 from scipy import randn
 from sklearn import preprocessing
 from pyomo.environ import *
@@ -43,7 +44,8 @@ class SparseLogReg(RandDCCP):
     def solve(self):
 
         solver = SolverFactory('gams')
-        results = solver.solve(self.model, solver = 'bonmin', tee = False, keepfiles = True)
+        # io_options=dict(add_options=['reslim=100;'])
+        results = solver.solve(self.model, solver = 'bonmin', tee = False, keepfiles = False, add_options=['GAMS_MODEL.reslim = 0.1;'])
         print(results)
         print([value(self.model.delta[i]) for i in range(self.nVars)])
         print([value(self.model.x[i]) for i in range(self.nVars)])
