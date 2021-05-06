@@ -35,8 +35,11 @@ class RandDCCP(ABC):
         pass
 
     def solve(self, solver_name):
+        if solver_name in ['gurobi', 'cplex']:
+            solver_name = None
         solver = SolverFactory('gams')
         options = ['GAMS_MODEL.reslim = 600;', 'GAMS_MODEL.optcr = 0.05;']
+        print(f'SOLVING USING {solver_name}\nProblem size: {self.nVars}')
         results = solver.solve(self.model, solver = solver_name, tee = False, keepfiles = False, add_options = options)
         print(results)
         lower_bound = results.problem.lower_bound
@@ -44,6 +47,8 @@ class RandDCCP(ABC):
         elapsed_time = results.solver.user_time
         status = results.solver.termination_condition
         gap = (upper_bound - lower_bound) / abs(upper_bound + 1e-8)
+        if solver_name is None:
+            solver_name = 'cplex'
         out = {
             'solver': solver_name,
             'gap': gap,

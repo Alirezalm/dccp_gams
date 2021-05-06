@@ -4,7 +4,8 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 
-from problem_class import SparseLogReg, SparseQCQP
+from dsqcqp import SparseQCQP
+from problem_class import SparseLogReg
 
 app = Flask(__name__)
 PATH = os.path.join(os.path.dirname(__file__))
@@ -29,6 +30,7 @@ def main_page():
         else:
             dsqcqp = SparseQCQP(problem_data = problem_data)
             dsqcqp.generate_data()
+            dsqcqp.create_variables()
             dsqcqp.create_objective()
             dsqcqp.create_constraints(5)
             solver = problem_data['selected_solver']
