@@ -34,6 +34,20 @@ class RandDCCP(ABC):
     def create_constraints(self, bound):
         pass
 
-    @abstractmethod
-    def solve(self, solver):
-        pass
+    def solve(self, solver_name):
+        solver = SolverFactory('gams')
+        options = ['GAMS_MODEL.reslim = 600;', 'GAMS_MODEL.optcr = 0.05;']
+        results = solver.solve(self.model, solver = solver_name, tee = False, keepfiles = False, add_options = options)
+        print(results)
+        lower_bound = results.problem.lower_bound
+        upper_bound = results.problem.upper_bound
+        elapsed_time = results.solver.user_time
+        status = results.solver.termination_condition
+        gap = (upper_bound - lower_bound) / abs(upper_bound + 1e-8)
+        out = {
+            'solver': solver_name,
+            'gap': gap,
+            'time': elapsed_time,
+            'status': status
+        }
+        return out

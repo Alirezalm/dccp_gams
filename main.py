@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 
-from problem_class import SparseLogReg
+from problem_class import SparseLogReg, SparseQCQP
 
 app = Flask(__name__)
 PATH = os.path.join(os.path.dirname(__file__))
@@ -17,15 +17,23 @@ load_dotenv(ENV_PATH)
 def main_page():
     if request.method == 'POST':
         problem_data = json.loads(request.get_data())
-        dslr = SparseLogReg(problem_data)
-        dslr.generate_data(nSamples = int(problem_data['nSamples']))
-        dslr.create_variables()
-        dslr.create_objective()
-        dslr.create_constraints(5)
-        solver = problem_data['selected_solver']
-        results = dslr.solve(solver)
-        return jsonify(results)
-
+        if problem_data['name'] == 'dslr':
+            dslr = SparseLogReg(problem_data)
+            dslr.generate_data(nSamples = int(problem_data['nSamples']))
+            dslr.create_variables()
+            dslr.create_objective()
+            dslr.create_constraints(5)
+            solver = problem_data['selected_solver']
+            results = dslr.solve(solver)
+            return jsonify(results)
+        else:
+            dsqcqp = SparseQCQP(problem_data = problem_data)
+            dsqcqp.generate_data()
+            dsqcqp.create_objective()
+            dsqcqp.create_constraints(5)
+            solver = problem_data['selected_solver']
+            results = dsqcqp.solve(solver)
+            return jsonify(results)
     else:
         return jsonify({'status': 1})
 
