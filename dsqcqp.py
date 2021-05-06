@@ -57,7 +57,7 @@ class SparseQCQP(RandDCCP):
 
         obj = sum([z[i] * self.model.x[i] for i in range(self.nVars)]) + sum(
             [self.model.x[i] * self.obj_data['grad'][i][0] for i in range(self.nVars)])
-        return sum([ self.model.x[i]**2 for i in range(self.nVars)])
+        return obj
 
     def create_constraints(self, bound):
         self.model.limits = ConstraintList()
@@ -66,9 +66,9 @@ class SparseQCQP(RandDCCP):
             self.model.limits.add(-bound * self.model.delta[i] <= self.model.x[i])
         self.model.limits.add(sum([self.model.delta[i] for i in range(self.nVars)]) <= self.nZeros)
 
-        # z = []
-        # for i in range(self.nVars):
-        #     z.append(sum([self.model.x[j] * self.constr_data['hess'][j, i] for j in range(self.nVars)]))
-        # const = sum([z[i] * self.model.x[i] for i in range(self.nVars)]) + sum(
-        #     [self.model.x[i] * self.constr_data['grad'][i][0] for i in range(self.nVars)])
-        # self.model.limits.add(const + self.constr_data['const'] <= 0)
+        z = []
+        for i in range(self.nVars):
+            z.append(sum([self.model.x[j] * self.constr_data['hess'][j, i] for j in range(self.nVars)]))
+        const = sum([z[i] * self.model.x[i] for i in range(self.nVars)]) + sum(
+            [self.model.x[i] * self.constr_data['grad'][i][0] for i in range(self.nVars)])
+        self.model.limits.add(const + self.constr_data['const'] <= 0)
