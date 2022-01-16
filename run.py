@@ -9,17 +9,18 @@ def run_experiment(problem_data):
     dslr.create_variables()
     dslr.create_objective()
     dslr.create_constraints(5)
-    res = dslr.solve("shot")
+    res = dslr.solve(problem_data['solver'])
     print(res)
 
 
 if __name__ == '__main__':
-    args = [int(arg) for arg in sys.argv[1:]]
+    args = [int(arg) for arg in sys.argv[2:]]
     data = {
         'name': "dslr",
         'nSamples': args[0],
         'nVars': args[1],
         'nZeros': args[2],
-        'nNodes': 4
+        'nNodes': args[3],
+        'solver': sys.argv[1]
     }
     run_experiment(problem_data = data)
